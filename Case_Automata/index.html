@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Case: Automata — a cozy pixel-art Regular Expression and DFA mystery game.">
+  <title>Case: Automata</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main id="app" class="game-shell">
+    <div class="crt-noise" aria-hidden="true"></div>
+
+    <section id="titleScreen" class="screen title-screen active">
+      <div class="title-scene">
+        <div class="moon"></div>
+        <div class="window">
+          <span class="rain r1"></span><span class="rain r2"></span><span class="rain r3"></span>
+          <span class="rain r4"></span><span class="rain r5"></span><span class="rain r6"></span>
+        </div>
+        <div class="lamp"></div>
+        <div class="desk">
+          <div class="monitor">
+            <div class="monitor-screen">
+              <span>CASE_FILE_07</span>
+              <span class="blink">_</span>
+            </div>
+          </div>
+          <div class="keyboard"></div>
+          <div class="mug"></div>
+        </div>
+        <div class="detective">
+          <div class="detective-hair"></div>
+          <div class="detective-face"></div>
+          <div class="detective-body"></div>
+        </div>
+      </div>
+
+      <div class="title-copy">
+        <p class="eyebrow">A TINY AUTOMATA MYSTERY</p>
+        <h1>CASE:<span>AUTOMATA</span></h1>
+        <p class="tagline">Every password leaves a trail.</p>
+        <button id="startBtn" class="primary-btn">START INVESTIGATION <span>→</span></button>
+        <button id="howBtn" class="text-btn">How does this work?</button>
+      </div>
+      <div class="title-footer">HTML • CSS • JAVASCRIPT &nbsp;|&nbsp; NO BACKEND</div>
+    </section>
+
+    <section id="introScreen" class="screen">
+      <div class="dialogue-scene">
+        <div class="room-art">
+          <div class="wall-shelf"><i></i><i></i><i></i></div>
+          <div class="file-cabinet"><span>CASE</span><b>07</b></div>
+          <div class="poster">LANGUAGE<br><strong>STUFF</strong></div>
+          <div class="desk-small"><div class="computer"></div><div class="plant"></div></div>
+          <div class="player-sprite"></div>
+        </div>
+        <div class="dialogue-box">
+          <div class="speaker">MIRA <span>• investigator</span></div>
+          <p id="introText">Someone left an old security terminal running after hours.</p>
+          <p id="introText2">Five locks. Five patterns. One machine. Let's see what it remembers.</p>
+          <button id="enterTerminalBtn" class="primary-btn">EXAMINE THE TERMINAL →</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="gameScreen" class="screen">
+      <header class="game-header">
+        <div class="case-mark">
+          <div class="case-icon">C</div>
+          <div><strong>CASE: AUTOMATA</strong><small>SECURITY ARCHIVE / NIGHT SHIFT</small></div>
+        </div>
+        <div class="hud">
+          <span>CASE <b id="levelLabel">01</b>/05</span>
+          <span>SCORE <b id="scoreLabel">0000</b></span>
+          <span id="livesLabel" class="lives">♥ ♥ ♥</span>
+        </div>
+      </header>
+
+      <div class="game-layout">
+        <aside class="case-panel">
+          <div class="panel-label">CASE FILE</div>
+          <h2 id="levelTitle">LOCK 01</h2>
+          <p id="storyText" class="story-text"></p>
+
+          <div class="clue-card">
+            <div class="clue-title">PATTERN CLUE</div>
+            <div id="clueText" class="clue-text"></div>
+          </div>
+
+          <div class="instructions" id="instructionText"></div>
+
+          <div class="progress-list" id="progressList"></div>
+        </aside>
+
+        <section class="terminal-area">
+          <div id="stagePattern" class="stage">
+            <div class="terminal-top">
+              <span>◉ SECURITY TERMINAL</span>
+              <span id="terminalStatus">WAITING</span>
+            </div>
+            <div class="terminal-content">
+              <div class="terminal-heading">
+                <span class="mini-label">STEP 01</span>
+                <h3>Find the matching passwords</h3>
+                <p>Select every password that follows the clue.</p>
+              </div>
+              <div id="passwordGrid" class="password-grid"></div>
+              <div class="stage-footer">
+                <span id="selectionCount">0 selected</span>
+                <button id="checkPatternBtn" class="primary-btn small">CHECK PATTERN</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="stageDfa" class="stage hidden">
+            <div class="terminal-top">
+              <span>◉ AUTOMATON CORE</span>
+              <span id="dfaStatus">READY</span>
+            </div>
+            <div class="terminal-content">
+              <div class="terminal-heading dfa-heading">
+                <div>
+                  <span class="mini-label">STEP 02</span>
+                  <h3>Guide the machine</h3>
+                  <p>Read the highlighted symbol and choose the next q-state.</p>
+                </div>
+                <div class="input-strip" id="inputStrip"></div>
+              </div>
+
+              <div class="machine-wrap">
+                <svg id="dfaSvg" viewBox="0 0 720 300" role="img" aria-label="DFA state diagram"></svg>
+              </div>
+
+              <div class="machine-controls">
+                <div class="readout">
+                  <span>CURRENT SYMBOL</span>
+                  <strong id="currentSymbol">—</strong>
+                </div>
+                <div class="readout">
+                  <span>CURRENT STATE</span>
+                  <strong id="currentState">q0</strong>
+                </div>
+                <div class="state-choices" id="stateChoices"></div>
+              </div>
+
+              <div id="machineMessage" class="machine-message" aria-live="polite">Choose the next state.</div>
+            </div>
+          </div>
+
+          <div id="stageResult" class="stage hidden">
+            <div class="terminal-top">
+              <span>◉ CASE REPORT</span>
+              <span>FILE UPDATED</span>
+            </div>
+            <div class="result-content">
+              <div id="resultStamp" class="result-stamp">SOLVED</div>
+              <h3 id="resultTitle">LOCK OPEN</h3>
+              <p id="resultText"></p>
+              <div id="traceBox" class="trace-box"></div>
+              <button id="nextLevelBtn" class="primary-btn">OPEN NEXT CASE →</button>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <footer class="game-footer">
+        <span>TIP: Watch the active q-state — the machine only knows the symbol it is reading.</span>
+        <button id="restartBtn" class="text-btn">Restart case</button>
+      </footer>
+    </section>
+
+    <section id="endingScreen" class="screen">
+      <div class="ending-scene">
+        <div class="door-art">
+          <div class="exit-sign">EXIT</div>
+          <div class="door"><span>07</span></div>
+        </div>
+        <div class="ending-copy">
+          <p class="eyebrow">CASE CLOSED</p>
+          <h1>THE MACHINE<br><span>IS SILENT.</span></h1>
+          <p>You traced five patterns through finite states and unlocked the archive.</p>
+          <div class="final-score">FINAL SCORE <strong id="finalScore">0000</strong></div>
+          <button id="playAgainBtn" class="primary-btn">PLAY AGAIN</button>
+        </div>
+      </div>
+    </section>
+
+    <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-card">
+        <button id="closeModal" class="close-btn" aria-label="Close">×</button>
+        <p class="eyebrow">FIELD NOTES</p>
+        <h2 id="modalTitle">How the case works</h2>
+        <p>Each lock has a simple pattern. First, you identify strings that match it. Then you operate a small Deterministic Finite Automaton (DFA): the machine reads one symbol at a time and moves between q-states.</p>
+        <div class="mini-flow">
+          <span>Pattern clue</span><b>→</b><span>Pick strings</span><b>→</b><span>Guide q-states</span><b>→</b><span>Unlock</span>
+        </div>
+        <p class="note">This game uses a few predefined machines so the focus stays on understanding state transitions rather than building a complex parser.</p>
+      </div>
+    </div>
+
+    <div id="toast" class="toast" aria-live="polite"></div>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
